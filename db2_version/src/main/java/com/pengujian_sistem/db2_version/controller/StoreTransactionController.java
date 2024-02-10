@@ -26,12 +26,6 @@ public class StoreTransactionController {
     public void coba() throws IOException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
 
-        TransactionModel transactionModel = new TransactionModel();
-        InventoryModel inventoryModel = new InventoryModel();
-
-        List<String> transactionValues = new ArrayList<>();
-        List<String> inventoryValues = new ArrayList<>();
-
         try {
             File folder = new File(pathPending);
             File[] listOfFiles = folder.listFiles();
