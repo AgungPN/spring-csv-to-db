@@ -1,11 +1,10 @@
 package com.pengujian_sistem.cassandra_version.services;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.BatchStatement;
-import com.datastax.oss.driver.api.core.cql.BatchType;
-import com.datastax.oss.driver.api.core.cql.BoundStatement;
-import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.*;
 import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
+import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
+import jnr.ffi.annotations.In;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,53 @@ import java.util.List;
 public class InventoryService {
 
     private CqlSession cqlSession;
+
+    public List<InventoryDTO> getList() {
+        List<InventoryDTO> inventoryDTOS = new ArrayList<>();
+        ResultSet resultSet = cqlSession.execute("SELECT * FROM lens_frame_inventory");
+
+        for (Row row : resultSet) {
+            InventoryDTO inventoryDTO = InventoryDTO.builder()
+                    .id(row.getUuid("id"))
+                    .cmpnycd(row.getString("cmpnycd"))
+                    .stockHandlingCustomerNumber(row.getString("stock_handling_customer_number"))
+                    .stockPoint(row.getString("stock_point"))
+                    .slipNumber(row.getString("slip_number"))
+                    .lineNumber(row.getString("line_number"))
+                    .itemType(row.getString("item_type"))
+                    .lensRlType(row.getString("f_lens_rl_type"))
+                    .lensLensCode(row.getString("f_lens_lens_code"))
+                    .lensColorCoatCode(row.getString("f_lens_color_coat_code"))
+                    .lensName(row.getString("f_lens_name"))
+                    .lensColor(row.getString("f_lens_color"))
+                    .lensCoat(row.getString("f_lens_coat"))
+                    .lensCylinderType(row.getString("f_lens_cylinder_type"))
+                    .lensSphere(row.getString("f_lens_sphere"))
+                    .lensCylinder(row.getString("f_lens_cylinder"))
+                    .lensAxis(row.getString("f_lens_axis"))
+                    .lensAddition(row.getString("f_lens_addition"))
+                    .lensDiameter(row.getString("f_lens_diameter"))
+                    .lensUniversalProductName(row.getString("f_lens_universal_product_name"))
+                    .frameCode(row.getString("frame_code"))
+                    .frameMaker(row.getString("frame_maker"))
+                    .frameName(row.getString("frame_name"))
+                    .frameEyeSize(row.getString("frame_eye_size"))
+                    .frameDbl(row.getString("frame_dbl"))
+                    .frameColor(row.getString("frame_color"))
+                    .framePartsType(row.getString("frame_parts_type"))
+                    .instrumentCode(row.getString("instrument_code"))
+                    .instrumentName(row.getString("instrument_name"))
+                    .instrumentPartsNumber(row.getString("instrument_parts_number"))
+                    .stockIoQuantity(row.getString("stock_io_quantity"))
+                    .receiveNumber(row.getString("receive_number"))
+                    .transactionDate(row.getString("transaction_date"))
+                    .transactionTime(row.getString("transaction_time"))
+                    .build();
+            inventoryDTOS.add(inventoryDTO);
+        }
+
+        return inventoryDTOS;
+    }
 
     public void insertMany(List<InventoryDTO> inventories) {
         BoundStatement[] boundStatements = new BoundStatement[inventories.size()];

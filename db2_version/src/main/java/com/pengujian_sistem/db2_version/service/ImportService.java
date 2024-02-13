@@ -1,84 +1,77 @@
-package com.pengujian_sistem.db2_version.controller;
+package com.pengujian_sistem.db2_version.service;
 
-import com.pengujian_sistem.db2_version.dto.TransactionDTO;
 import com.pengujian_sistem.db2_version.helper.Helpers;
 import com.pengujian_sistem.db2_version.model.InventoryModel;
 import com.pengujian_sistem.db2_version.model.TransactionModel;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Time;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringTokenizer;
 
-@RestController
+@Service
 @AllArgsConstructor
-public class StoreTransactionController {
+public class ImportService {
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/testing")
-    public void coba() throws IOException {
+    public void store() throws IOException, ParseException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
 
-        try {
-            File folder = new File(pathPending);
-            File[] listOfFiles = folder.listFiles();
-            assert listOfFiles != null;
+        File folder = new File(pathPending);
+        File[] listOfFiles = folder.listFiles();
+        assert listOfFiles != null;
 
-            for (File file : listOfFiles) {
-                List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
+        for (File file : listOfFiles) {
+            List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
 
-                boolean isListOfFieldNames = true;
-                boolean isDataTransaction = false;
+            boolean isListOfFieldNames = true;
+            boolean isDataTransaction = false;
 
-                List<Object[]> batchTransactionArgs = new ArrayList<>();
-                List<Object[]> batchInventoryArgs = new ArrayList<>();
+            List<Object[]> batchTransactionArgs = new ArrayList<>();
+            List<Object[]> batchInventoryArgs = new ArrayList<>();
 
-                for (String content : contents) {
-                    if (isListOfFieldNames) {
-                        isDataTransaction = isDataTransaction(content);
-                        isListOfFieldNames = false;
-                        continue;
-                    }
-
-                    insertToRows(isDataTransaction, batchTransactionArgs, batchInventoryArgs, content);
-                }
-                int[] updateTransactionCounts = jdbcTemplate.batchUpdate(TransactionModel.sql, batchTransactionArgs);
-
-                // Handle errors if necessary
-                for (int count : updateTransactionCounts) {
-                    if (count == 0) {
-                        System.out.println("Transaction update failed");
-                    }
+            for (String content : contents) {
+                if (isListOfFieldNames) {
+                    isDataTransaction = isDataTransaction(content);
+                    isListOfFieldNames = false;
+                    continue;
                 }
 
-                int[] updateInventoryCounts = jdbcTemplate.batchUpdate(InventoryModel.sql, batchInventoryArgs);
+                insertToRows(isDataTransaction, batchTransactionArgs, batchInventoryArgs, content);
+            }
+            int[] updateTransactionCounts = jdbcTemplate.batchUpdate(TransactionModel.sql, batchTransactionArgs);
 
-                // Handle errors if necessary
-                for (int count : updateInventoryCounts) {
-                    if (count == 0) {
-                        System.out.println("Inventory update failed");
-                    }
+            // Handle errors if necessary
+            for (int count : updateTransactionCounts) {
+                if (count == 0) {
+                    System.out.println("Transaction update failed");
                 }
-
             }
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            int[] updateInventoryCounts = jdbcTemplate.batchUpdate(InventoryModel.sql, batchInventoryArgs);
+
+            // Handle errors if necessary
+            for (int count : updateInventoryCounts) {
+                if (count == 0) {
+                    System.out.println("Inventory update failed");
+                }
+            }
+
         }
     }
 
     private static void insertToRows(boolean isDataTransaction, List<Object[]> batchTransactionArgs, List<Object[]> batchInventoryArgs, String content) throws ParseException {
         StringTokenizer tkn = new StringTokenizer(content, ",");
         if (isDataTransaction) {
-            Object[] args = new Object[]{
-                    tkn.nextToken(), // Completed
+            Object[] args = new Object[]{tkn.nextToken(), // Completed
                     tkn.nextToken(), // CMPNYCD
                     tkn.nextToken(), // STOCK_HANDLING_CUSTOMER_NUMBER
                     tkn.nextToken(), // STOCK_POINT
@@ -100,8 +93,7 @@ public class StoreTransactionController {
             batchTransactionArgs.add(args);
         } else {
 
-            Object[] args = new Object[]{
-                    tkn.nextToken(), // CMPNYCD
+            Object[] args = new Object[]{tkn.nextToken(), // CMPNYCD
                     tkn.nextToken(), // STOCK_HANDLING_CUSTOMER_NUMBER
                     tkn.nextToken(), // STOCK_POINT
                     tkn.nextToken(), // SLIP_NUMBER
@@ -146,7 +138,8 @@ public class StoreTransactionController {
                     tkn.nextToken(), // TRANSACTION_CODE
                     tkn.nextToken(), // SUB_TRANSACTION_CODE
                     Helpers.convertStringToDate(tkn.nextToken()),  // TRANSACTION_DATE
-                    new Time(Integer.parseInt(tkn.nextToken())), // TRANSACTION_TIME
+//                    new Time(Integer.parseInt(tkn.nextToken())), // TRANSACTION_TIME
+                    Integer.parseInt(tkn.nextToken()), // RECEIVE_NUMBER
             };
 
             batchInventoryArgs.add(args);

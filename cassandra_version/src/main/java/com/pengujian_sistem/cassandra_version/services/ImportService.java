@@ -1,37 +1,32 @@
-package com.pengujian_sistem.cassandra_version.controllers;
+package com.pengujian_sistem.cassandra_version.services;
 
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
 import com.pengujian_sistem.cassandra_version.helpers.Helper;
-import com.pengujian_sistem.cassandra_version.services.InventoryService;
-import com.pengujian_sistem.cassandra_version.services.TransactionService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.Getter;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-@RestController
+@Service
 @AllArgsConstructor
-public class StoreDataController {
-
+@Getter
+public class ImportService {
     private TransactionService transactionService;
     private InventoryService inventoryService;
 
-    @GetMapping("/store")
-    public void storeData() throws IOException, ParseException {
+    public void store() throws IOException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
 
-//        try {
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
         assert listOfFiles != null;
@@ -45,9 +40,6 @@ public class StoreDataController {
             boolean isListOfFieldNames = true;
             boolean isTransaction = false;
 
-            List<Object[]> batchTransactionArgs = new ArrayList<>();
-            List<Object[]> batchInventoryArgs = new ArrayList<>();
-
             for (String content : contents) {
                 if (isListOfFieldNames) {
                     isTransaction = isTransactionData(content);
@@ -55,6 +47,7 @@ public class StoreDataController {
                     continue;
                 }
 
+                content = content.replaceAll("\"", "");
                 StringTokenizer tkn = new StringTokenizer(content, ",");
                 if (isTransaction) {
                     TransactionDTO build = TransactionDTO.builder()
@@ -124,10 +117,6 @@ public class StoreDataController {
 
         transactionService.insertWithChunkList(transactionDTOs, 100);
         inventoryService.insertWithChunkList(invaentoryDTOs, 50);
-
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
     }
 
     public boolean isTransactionData(String data) {

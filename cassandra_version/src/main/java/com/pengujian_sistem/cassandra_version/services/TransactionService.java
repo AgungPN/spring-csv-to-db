@@ -1,10 +1,7 @@
 package com.pengujian_sistem.cassandra_version.services;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.BatchStatement;
-import com.datastax.oss.driver.api.core.cql.BatchType;
-import com.datastax.oss.driver.api.core.cql.BoundStatement;
-import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.*;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +12,37 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class TransactionService {
-
     private CqlSession cqlSession;
+
+    public List<TransactionDTO> getList() {
+        List<TransactionDTO> transactionDTOS = new ArrayList<>();
+        ResultSet resultSet = cqlSession.execute("SELECT * FROM transactions");
+        for (Row row : resultSet) {
+            TransactionDTO transactionDTO = TransactionDTO.builder()
+                    .id(row.getUuid("id"))
+                    .completed(row.getString("completed"))
+                    .cmpnycd(row.getString("cmpnycd"))
+                    .stockHandlingCustomerNumber(row.getString("stock_handling_customer_number"))
+                    .stockPoint(row.getString("stock_point"))
+                    .slipNumber(row.getString("slip_number"))
+                    .transactionCode(row.getString("transaction_code"))
+                    .subTransactionCode(row.getString("sub_transaction_code"))
+                    .transactionDate(row.getLocalDate("transaction_date"))
+                    .transactionTime(row.getInt("transaction_time"))
+                    .purchaseOrderNumber(row.getString("purchase_order_number"))
+                    .shipmentNumber(row.getString("shipment_number"))
+                    .supplierCompanyCode(row.getString("supplier_company_code"))
+                    .supplierNumber(row.getString("supplier_number"))
+                    .totDetLine(row.getString("totdetline"))
+                    .inTransitStockPoint(row.getString("intransit_stock_point"))
+                    .receiveNumber(row.getString("receive_number"))
+                    .rxArrangementNumber(row.getString("rx_arrangement_number"))
+                    .originalStockPoint(row.getString("original_stock_point"))
+                    .build();
+            transactionDTOS.add(transactionDTO);
+        }
+        return transactionDTOS;
+    }
 
     public void insertTransactions(List<TransactionDTO> transactions) {
         BoundStatement[] boundStatements = new BoundStatement[transactions.size()];

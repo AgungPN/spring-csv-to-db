@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LensFrameInventoryDTO {
+public class InventoryDTO {
     private String cmpnycd;
     private String stockHandlingCustomerNumber;
     private String stockPoint;
