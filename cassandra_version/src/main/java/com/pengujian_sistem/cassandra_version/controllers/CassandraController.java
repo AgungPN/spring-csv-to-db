@@ -23,12 +23,12 @@ public class CassandraController {
 
     @GetMapping("/transactions")
     public List<TransactionDTO> getTransactions() {
-        return importService.getListTransactions();
+        return importService.getTransactionService().getList();
     }
 
     @GetMapping("/inventories")
     public List<InventoryDTO> getInventories() {
-        return importService.getListInventories();
+        return importService.getInventoryService().getList();
     }
 
 

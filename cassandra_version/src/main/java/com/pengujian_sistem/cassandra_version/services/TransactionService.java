@@ -57,8 +57,7 @@ public class TransactionService {
         BoundStatement[] boundStatements = new BoundStatement[transactions.size()];
 
         for (int i = 0; i < transactions.size(); i++) {
-            TransactionDTO transactionDTO = transactions.get(i);
-            BoundStatement boundStatement = prepareInsert(transactionDTO);
+            BoundStatement boundStatement = prepareInsert(transactions.get(i));
             boundStatements[i] = boundStatement;
         }
 
@@ -70,7 +69,7 @@ public class TransactionService {
      * Prepare a bound statement for inserting a transaction into the database.
      */
     private BoundStatement prepareInsert(TransactionDTO transaction) {
-        String cql = "INSERT INTO transactions (" +
+        String insertCQL = "INSERT INTO transactions (" +
                 "    id," +
                 "    completed," +
                 "    cmpnycd," +
@@ -92,7 +91,7 @@ public class TransactionService {
                 "    original_stock_point" +
                 ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement preparedStatement = cqlSession.prepare(cql);
+        PreparedStatement preparedStatement = cqlSession.prepare(insertCQL);
         return preparedStatement.bind(
                 transaction.getId(),
                 transaction.getCompleted(),
@@ -125,9 +124,7 @@ public class TransactionService {
             chunks.add(transactions.subList(i, Math.min(i + chunkSize, transactions.size())));
         }
 
-        for (List<TransactionDTO> chunk : chunks) {
-            insertTransactions(chunk);
-        }
+        chunks.forEach(this::insertTransactions);
     }
 
     /**

@@ -87,8 +87,7 @@ public class InventoryService {
         BoundStatement[] boundStatements = new BoundStatement[inventories.size()];
 
         for (int i = 0; i < inventories.size(); i++) {
-            InventoryDTO iventory = inventories.get(i);
-            BoundStatement boundStatement = prepareInsert(iventory);
+            BoundStatement boundStatement = prepareInsert(inventories.get(i));
             boundStatements[i] = boundStatement;
         }
 
@@ -100,7 +99,7 @@ public class InventoryService {
      * Prepare insert statement
      */
     private BoundStatement prepareInsert(InventoryDTO inventory) {
-        String cql = "INSERT INTO lens_frame_inventory (id, cmpnycd, stock_handling_customer_number, stock_point, " +
+        String insertCQL = "INSERT INTO lens_frame_inventory (id, cmpnycd, stock_handling_customer_number, stock_point, " +
                 "slip_number, line_number, item_type, f_lens_rl_type, f_lens_lens_code, f_lens_color_coat_code, " +
                 "f_lens_name, f_lens_color, f_lens_coat, f_lens_cylinder_type, f_lens_sphere, f_lens_cylinder, " +
                 "f_lens_axis, f_lens_addition, f_lens_diameter, f_lens_universal_product_name, s_lens_rl_type, " +
@@ -112,7 +111,7 @@ public class InventoryService {
                 "sub_transaction_code, transaction_date, transaction_time) " +
                 "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
 
-        PreparedStatement preparedStatement = cqlSession.prepare(cql);
+        PreparedStatement preparedStatement = cqlSession.prepare(insertCQL);
         return preparedStatement.bind(
                 inventory.getId(),
                 inventory.getCmpnycd(),
@@ -173,9 +172,7 @@ public class InventoryService {
             chunks.add(transactions.subList(i, Math.min(i + chunkSize, transactions.size())));
         }
 
-        for (List<InventoryDTO> chunk : chunks) {
-            insertMany(chunk);
-        }
+        chunks.forEach(this::insertMany);
     }
 
     /**
