@@ -17,9 +17,10 @@ import java.util.List;
 public class DB2Controller {
     private ImportService importService;
 
-//    public List<TransactionDTO> getTransactions() {
-//        return importService.getTransactionService().getList();
-//    }
+    @GetMapping("/transactions")
+    public List<TransactionDTO> getTransactions() {
+        return importService.getListTransactions();
+    }
 
     @GetMapping("/inventories")
     public List<InventoryDTO> getInventories() {
