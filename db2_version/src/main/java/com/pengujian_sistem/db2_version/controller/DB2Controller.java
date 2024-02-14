@@ -4,12 +4,16 @@ import com.pengujian_sistem.db2_version.dto.InventoryDTO;
 import com.pengujian_sistem.db2_version.dto.TransactionDTO;
 import com.pengujian_sistem.db2_version.service.ImportService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -28,11 +32,25 @@ public class DB2Controller {
     }
 
     @PostMapping("/store")
-    public void store() {
+    public ResponseEntity<?> store(@RequestParam("file") MultipartFile file) throws ParseException, IOException {
+        if (!"text/csv".equalsIgnoreCase(file.getContentType())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "File must be in CSV format"));
+        }
+
+        List<String> contents = new BufferedReader(
+                new InputStreamReader(file.getInputStream())
+        ).lines().toList();
+        importService.storeFileToDB(contents);
+        return ResponseEntity.ok().body(Map.of("message", "File has been stored to database"));
+    }
+
+    @PostMapping("/pending-to-db")
+    public void pendingCsvToDb() {
         try {
-            importService.store();
+            importService.pendingCsvToDb();
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }

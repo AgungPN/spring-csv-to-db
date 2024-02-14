@@ -2,6 +2,7 @@ package com.pengujian_sistem.db2_version.service;
 
 import com.pengujian_sistem.db2_version.dto.InventoryDTO;
 import com.pengujian_sistem.db2_version.dto.TransactionDTO;
+import com.pengujian_sistem.db2_version.helper.Helpers;
 import com.pengujian_sistem.db2_version.mapper.InventoryMapper;
 import com.pengujian_sistem.db2_version.mapper.TransactionMapper;
 import lombok.AllArgsConstructor;
@@ -20,17 +21,25 @@ import java.util.Objects;
 
 @Service
 @AllArgsConstructor
-@Getter
 public class ImportService {
     private JdbcTemplate jdbcTemplate;
     private InventoryService inventoryService;
     private TransactionService transactionService;
 
+    public void storeFileToDB(List<String> contents) throws ParseException {
+        List<Object[]> rowTransactions = new ArrayList<>();
+        List<Object[]> rowInventories = new ArrayList<>();
+
+        csvToRows(rowTransactions, rowInventories, contents);
+
+        insertToDatabase(rowTransactions, rowInventories);
+    }
+
     /**
      * Store data from CSV to database
      */
-    public void store() throws IOException, ParseException {
-        String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
+    public void pendingCsvToDb() throws IOException, ParseException {
+        String pathPending = "/home/linux/Documents/programing/java/spring/spring-csv-to-db/db2_version/assets/pending/";
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
@@ -40,20 +49,30 @@ public class ImportService {
 
         for (File file : listOfFiles) {
             List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
-
-            String contentFields = contents.get(0);
-            if (isDataFileTransaction(contentFields)) {
-                for (int i = 1; i < contents.size(); i++) {
-                    rowTransactions.add(transactionService.addToRows(contents.get(i)));
-                }
-            } else {
-                for (int i = 1; i < contents.size(); i++) {
-                    rowInventories.add(inventoryService.addToRows(contents.get(i)));
-                }
-            }
+            csvToRows(rowTransactions, rowInventories, contents);
         }
 
         insertToDatabase(rowTransactions, rowInventories);
+    }
+
+    /**
+     * Read CSV file and convert to rows object
+     */
+    private void csvToRows(
+            List<Object[]> rowTransactions,
+            List<Object[]> rowInventories,
+            List<String> contents) throws ParseException {
+
+        String contentFields = contents.get(0);
+        if (isDataFileTransaction(contentFields)) {
+            for (int i = 1; i < contents.size(); i++) {
+                rowTransactions.add(transactionService.addToRows(contents.get(i)));
+            }
+        } else {
+            for (int i = 1; i < contents.size(); i++) {
+                rowInventories.add(inventoryService.addToRows(contents.get(i)));
+            }
+        }
     }
 
     /**
@@ -82,8 +101,8 @@ public class ImportService {
     /**
      * check is CSV file contains data transaction
      */
-    public boolean isDataFileTransaction(String data) {
-        return Objects.equals(data, "Completed,CMPNYCD,STOCK_HANDLING_CUSTOMER_NUMBER,STOCK_POINT,SLIP_NUMBER,TRANSACTION_CODE,SUB_TRANSACTION_CODE,TRANSACTION_DATE,TRANSACTION_TIME,PURCHASE_ORDER_NUMBER,SHIPMENT_NUMBER,SUPPLIER_COMPANY_CODE,SUPPLIER_NUMBER,TOTDETLINE,INTRANSIT_STOCK_POINT,RECEIVE_NUMBER,RX_ARRANGEMENT_NUMBER,ORGINAL_STOCK_POINT");
+    public boolean isDataFileTransaction(String dataFields) {
+        return dataFields.equalsIgnoreCase("Completed,CMPNYCD,STOCK_HANDLING_CUSTOMER_NUMBER,STOCK_POINT,SLIP_NUMBER,TRANSACTION_CODE,SUB_TRANSACTION_CODE,TRANSACTION_DATE,TRANSACTION_TIME,PURCHASE_ORDER_NUMBER,SHIPMENT_NUMBER,SUPPLIER_COMPANY_CODE,SUPPLIER_NUMBER,TOTDETLINE,INTRANSIT_STOCK_POINT,RECEIVE_NUMBER,RX_ARRANGEMENT_NUMBER,ORGINAL_STOCK_POINT");
     }
 
     /**

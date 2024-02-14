@@ -4,13 +4,16 @@ import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
 import com.pengujian_sistem.cassandra_version.services.ImportService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -20,20 +23,30 @@ public class CassandraController {
 
     @GetMapping("/transactions")
     public List<TransactionDTO> getTransactions() {
-        return importService.getTransactionService().getList();
+        return importService.getListTransactions();
     }
 
     @GetMapping("/inventories")
     public List<InventoryDTO> getInventories() {
-        return importService.getInventoryService().getList();
+        return importService.getListInventories();
     }
 
+
     @PostMapping("/store")
-    public void storeData() {
-        try {
-            importService.store();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public ResponseEntity<?> store(@RequestParam("file") MultipartFile file) throws IOException {
+        if (!"text/csv".equalsIgnoreCase(file.getContentType())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "File must be in CSV format"));
         }
+
+        List<String> contents = new BufferedReader(
+                new InputStreamReader(file.getInputStream())
+        ).lines().toList();
+        importService.storeFileToDB(contents);
+        return ResponseEntity.ok().body(Map.of("message", "File has been stored to database"));
+    }
+
+    @PostMapping("/pending-to-db")
+    public void pendingCsvToDb() throws IOException {
+        importService.pendingCsvToDB();
     }
 }

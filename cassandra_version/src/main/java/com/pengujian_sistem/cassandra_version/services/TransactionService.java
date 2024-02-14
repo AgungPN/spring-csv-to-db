@@ -2,18 +2,24 @@ package com.pengujian_sistem.cassandra_version.services;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.*;
+import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
+import com.pengujian_sistem.cassandra_version.helpers.Helpers;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 @Service
 @AllArgsConstructor
 public class TransactionService {
     private CqlSession cqlSession;
 
+    /**
+     * Get all transactions from the database.
+     */
     public List<TransactionDTO> getList() {
         List<TransactionDTO> transactionDTOS = new ArrayList<>();
         ResultSet resultSet = cqlSession.execute("SELECT * FROM transactions");
@@ -44,12 +50,15 @@ public class TransactionService {
         return transactionDTOS;
     }
 
+    /**
+     * Insert a list of transactions into the database.
+     */
     public void insertTransactions(List<TransactionDTO> transactions) {
         BoundStatement[] boundStatements = new BoundStatement[transactions.size()];
 
         for (int i = 0; i < transactions.size(); i++) {
             TransactionDTO transactionDTO = transactions.get(i);
-            BoundStatement boundStatement = addTransactions(transactionDTO);
+            BoundStatement boundStatement = prepareInsert(transactionDTO);
             boundStatements[i] = boundStatement;
         }
 
@@ -57,7 +66,10 @@ public class TransactionService {
         cqlSession.execute(batchStatement);
     }
 
-    private BoundStatement addTransactions(TransactionDTO transaction) {
+    /**
+     * Prepare a bound statement for inserting a transaction into the database.
+     */
+    private BoundStatement prepareInsert(TransactionDTO transaction) {
         String cql = "INSERT INTO transactions (" +
                 "    id," +
                 "    completed," +
@@ -104,6 +116,9 @@ public class TransactionService {
         );
     }
 
+    /**
+     * Inserts a list of transactions into the database in chunks to prevent large batch failures.
+     */
     public void insertWithChunkList(List<TransactionDTO> transactions, int chunkSize) {
         List<List<TransactionDTO>> chunks = new ArrayList<>();
         for (int i = 0; i < transactions.size(); i += chunkSize) {
@@ -113,5 +128,33 @@ public class TransactionService {
         for (List<TransactionDTO> chunk : chunks) {
             insertTransactions(chunk);
         }
+    }
+
+    /**
+     * Convert CSV content to TransactionDTO
+     */
+    public TransactionDTO buildDTO(String content) {
+        StringTokenizer tkn = new StringTokenizer(content, ",");
+        return TransactionDTO.builder()
+                .id(Uuids.random())
+                .completed(tkn.nextToken())
+                .cmpnycd(tkn.nextToken())
+                .stockHandlingCustomerNumber(tkn.nextToken())
+                .stockPoint(tkn.nextToken())
+                .slipNumber(tkn.nextToken())
+                .transactionCode(tkn.nextToken())
+                .subTransactionCode(tkn.nextToken())
+                .transactionDate(Helpers.convertStringToLocalDate(tkn.nextToken()))
+                .transactionTime(Integer.parseInt(tkn.nextToken()))
+                .purchaseOrderNumber(tkn.nextToken())
+                .shipmentNumber(tkn.nextToken())
+                .supplierCompanyCode(tkn.nextToken())
+                .supplierNumber(tkn.nextToken())
+                .totDetLine(tkn.nextToken())
+                .inTransitStockPoint(tkn.nextToken())
+                .receiveNumber(tkn.nextToken())
+                .rxArrangementNumber(tkn.nextToken())
+                .originalStockPoint(tkn.nextToken())
+                .build();
     }
 }
