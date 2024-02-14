@@ -3,8 +3,6 @@ package com.pengujian_sistem.cassandra_version.services;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.*;
 import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
-import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
-import jnr.ffi.annotations.In;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +18,6 @@ public class InventoryService {
     public List<InventoryDTO> getList() {
         List<InventoryDTO> inventoryDTOS = new ArrayList<>();
         ResultSet resultSet = cqlSession.execute("SELECT * FROM lens_frame_inventory");
-
         for (Row row : resultSet) {
             InventoryDTO inventoryDTO = InventoryDTO.builder()
                     .id(row.getUuid("id"))
@@ -30,19 +27,30 @@ public class InventoryService {
                     .slipNumber(row.getString("slip_number"))
                     .lineNumber(row.getString("line_number"))
                     .itemType(row.getString("item_type"))
-                    .lensRlType(row.getString("f_lens_rl_type"))
-                    .lensLensCode(row.getString("f_lens_lens_code"))
-                    .lensColorCoatCode(row.getString("f_lens_color_coat_code"))
-                    .lensName(row.getString("f_lens_name"))
-                    .lensColor(row.getString("f_lens_color"))
-                    .lensCoat(row.getString("f_lens_coat"))
-                    .lensCylinderType(row.getString("f_lens_cylinder_type"))
-                    .lensSphere(row.getString("f_lens_sphere"))
-                    .lensCylinder(row.getString("f_lens_cylinder"))
-                    .lensAxis(row.getString("f_lens_axis"))
-                    .lensAddition(row.getString("f_lens_addition"))
-                    .lensDiameter(row.getString("f_lens_diameter"))
-                    .lensUniversalProductName(row.getString("f_lens_universal_product_name"))
+                    .fLensRlType(row.getString("f_lens_rl_type"))
+                    .fLensLensCode(row.getString("f_lens_lens_code"))
+                    .fLensColorCoatCode(row.getString("f_lens_color_coat_code"))
+                    .fLensName(row.getString("f_lens_name"))
+                    .fLensColor(row.getString("f_lens_color"))
+                    .fLensCoat(row.getString("f_lens_coat"))
+                    .fLensCylinderType(row.getString("f_lens_cylinder_type"))
+                    .fLensSphere(row.getString("f_lens_sphere"))
+                    .fLensCylinder(row.getString("f_lens_cylinder"))
+                    .fLensAxis(row.getString("f_lens_axis"))
+                    .fLensAddition(row.getString("f_lens_addition"))
+                    .fLensDiameter(row.getString("f_lens_diameter"))
+                    .fLensUniversalProductName(row.getString("f_lens_universal_product_name"))
+                    .sLensRlType(row.getString("s_lens_rl_type"))
+                    .sLensCode(row.getString("s_lens_code"))
+                    .sLensColorCoatCode(row.getString("s_lens_color_coat_code"))
+                    .sLensName(row.getString("s_lens_name"))
+                    .sLensColor(row.getString("s_lens_color"))
+                    .sLensMaker(row.getString("s_lens_maker"))
+                    .sLensNominalBaseCurve(row.getString("s_lens_nominal_base_curve"))
+                    .sLensDiameter(row.getString("s_lens_diameter"))
+                    .sLensThicknessType(row.getString("s_lens_thickness_type"))
+                    .sLensAddition(row.getString("s_lens_addition"))
+                    .sLensUniversalProductName(row.getString("s_lens_universal_product_name"))
                     .frameCode(row.getString("frame_code"))
                     .frameMaker(row.getString("frame_maker"))
                     .frameName(row.getString("frame_name"))
@@ -54,9 +62,11 @@ public class InventoryService {
                     .instrumentName(row.getString("instrument_name"))
                     .instrumentPartsNumber(row.getString("instrument_parts_number"))
                     .stockIoQuantity(row.getString("stock_io_quantity"))
-                    .receiveNumber(row.getString("receive_number"))
-                    .transactionDate(row.getString("transaction_date"))
-                    .transactionTime(row.getString("transaction_time"))
+                    .receiveNumber(row.getInt("receive_number"))
+                    .transactionCode(row.getInt("transaction_code"))
+                    .subTransactionCode(row.getString("sub_transaction_code"))
+                    .transactionDate(row.getLocalDate("transaction_date"))
+                    .transactionTime(row.getInt("transaction_time"))
                     .build();
             inventoryDTOS.add(inventoryDTO);
         }
@@ -69,7 +79,7 @@ public class InventoryService {
 
         for (int i = 0; i < inventories.size(); i++) {
             InventoryDTO iventory = inventories.get(i);
-            BoundStatement boundStatement = add(iventory);
+            BoundStatement boundStatement = prepareInsert(iventory);
             boundStatements[i] = boundStatement;
         }
 
@@ -77,7 +87,7 @@ public class InventoryService {
         cqlSession.execute(batchStatement);
     }
 
-    private BoundStatement add(InventoryDTO inventory) {
+    private BoundStatement prepareInsert(InventoryDTO inventory) {
         String cql = "INSERT INTO lens_frame_inventory (id, cmpnycd, stock_handling_customer_number, stock_point, " +
                 "slip_number, line_number, item_type, f_lens_rl_type, f_lens_lens_code, f_lens_color_coat_code, " +
                 "f_lens_name, f_lens_color, f_lens_coat, f_lens_cylinder_type, f_lens_sphere, f_lens_cylinder, " +
@@ -99,19 +109,30 @@ public class InventoryService {
                 inventory.getSlipNumber(),
                 inventory.getLineNumber(),
                 inventory.getItemType(),
-                inventory.getLensRlType(),
-                inventory.getLensLensCode(),
-                inventory.getLensColorCoatCode(),
-                inventory.getLensName(),
-                inventory.getLensColor(),
-                inventory.getLensCoat(),
-                inventory.getLensCylinderType(),
-                inventory.getLensSphere(),
-                inventory.getLensCylinder(),
-                inventory.getLensAxis(),
-                inventory.getLensAddition(),
-                inventory.getLensDiameter(),
-                inventory.getLensUniversalProductName(),
+                inventory.getFLensRlType(),
+                inventory.getFLensLensCode(),
+                inventory.getFLensColorCoatCode(),
+                inventory.getFLensName(),
+                inventory.getFLensColor(),
+                inventory.getFLensCoat(),
+                inventory.getFLensCylinderType(),
+                inventory.getFLensSphere(),
+                inventory.getFLensCylinder(),
+                inventory.getFLensAxis(),
+                inventory.getFLensAddition(),
+                inventory.getFLensDiameter(),
+                inventory.getFLensUniversalProductName(),
+                inventory.getSLensRlType(),
+                inventory.getSLensCode(),
+                inventory.getSLensColorCoatCode(),
+                inventory.getSLensName(),
+                inventory.getSLensColor(),
+                inventory.getSLensMaker(),
+                inventory.getSLensNominalBaseCurve(),
+                inventory.getSLensDiameter(),
+                inventory.getSLensThicknessType(),
+                inventory.getSLensAddition(),
+                inventory.getSLensUniversalProductName(),
                 inventory.getFrameCode(),
                 inventory.getFrameMaker(),
                 inventory.getFrameName(),
@@ -124,6 +145,8 @@ public class InventoryService {
                 inventory.getInstrumentPartsNumber(),
                 inventory.getStockIoQuantity(),
                 inventory.getReceiveNumber(),
+                inventory.getTransactionCode(),
+                inventory.getSubTransactionCode(),
                 inventory.getTransactionDate(),
                 inventory.getTransactionTime()
         );
@@ -134,10 +157,8 @@ public class InventoryService {
         for (int i = 0; i < transactions.size(); i += chunkSize) {
             chunks.add(transactions.subList(i, Math.min(i + chunkSize, transactions.size())));
         }
-        System.out.println("TOTAL JUMLAH CHUNKS: " + chunks.size());
 
         for (List<InventoryDTO> chunk : chunks) {
-            System.out.println("TOTAL JUMLAH EACHCHUNK: " + chunk.size());
             insertMany(chunk);
         }
     }

@@ -3,7 +3,7 @@ package com.pengujian_sistem.cassandra_version.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -16,19 +16,30 @@ public class InventoryDTO {
     private String slipNumber;
     private String lineNumber;
     private String itemType;
-    private String lensRlType;
-    private String lensLensCode;
-    private String lensColorCoatCode;
-    private String lensName;
-    private String lensColor;
-    private String lensCoat;
-    private String lensCylinderType;
-    private String lensSphere;
-    private String lensCylinder;
-    private String lensAxis;
-    private String lensAddition;
-    private String lensDiameter;
-    private String lensUniversalProductName;
+    private String fLensRlType;
+    private String fLensLensCode;
+    private String fLensColorCoatCode;
+    private String fLensName;
+    private String fLensColor;
+    private String fLensCoat;
+    private String fLensCylinderType;
+    private String fLensSphere;
+    private String fLensCylinder;
+    private String fLensAxis;
+    private String fLensAddition;
+    private String fLensDiameter;
+    private String fLensUniversalProductName;
+    private String sLensRlType;
+    private String sLensCode;
+    private String sLensColorCoatCode;
+    private String sLensName;
+    private String sLensColor;
+    private String sLensMaker;
+    private String sLensNominalBaseCurve;
+    private String sLensDiameter;
+    private String sLensThicknessType;
+    private String sLensAddition;
+    private String sLensUniversalProductName;
     private String frameCode;
     private String frameMaker;
     private String frameName;
@@ -39,8 +50,10 @@ public class InventoryDTO {
     private String instrumentCode;
     private String instrumentName;
     private String instrumentPartsNumber;
-    private String  stockIoQuantity;
-    private String  receiveNumber;
-    private String  transactionDate;
-    private String  transactionTime;
+    private String stockIoQuantity;
+    private int receiveNumber;
+    private int transactionCode;
+    private String subTransactionCode;
+    private LocalDate transactionDate;
+    private int transactionTime;
 }

@@ -5,55 +5,45 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class InventoryDTO {
+    private Integer id;
     private String cmpnycd;
     private String stockHandlingCustomerNumber;
     private String stockPoint;
     private String slipNumber;
     private String lineNumber;
     private String itemType;
-    private String fLensRlType;
-    private String fLensLensCode;
-    private String fLensColorCoatCode;
-    private String fLensName;
-    private String fLensColor;
-    private String fLensCoat;
-    private String fLensCylinderType;
-    private double fLensSphere;
-    private double fLensCylinder;
-    private String fLensAxis;
-    private String fLensAddition;
-    private int fLensDiameter;
-    private String fLensUniversalProductName;
-    private String sLensRlType;
-    private String sLensCode;
-    private String sLensColorCoatCode;
-    private String sLensName;
-    private String sLensColor;
-    private String sLensMaker;
-    private double sLensNominalBaseCurve;
-    private int sLensDiameter;
-    private String sLensThicknessType;
-    private String sLensAddition;
-    private String sLensUniversalProductName;
+    private String lensRlType;
+    private String lensLensCode;
+    private String lensColorCoatCode;
+    private String lensName;
+    private String lensColor;
+    private String lensCoat;
+    private String lensCylinderType;
+    private String lensSphere;
+    private String lensCylinder;
+    private String lensAxis;
+    private String lensAddition;
+    private String lensDiameter;
+    private String lensUniversalProductName;
     private String frameCode;
     private String frameMaker;
     private String frameName;
-    private int frameEyeSize;
-    private int frameDbl;
+    private String frameEyeSize;
+    private String frameDbl;
     private String frameColor;
     private String framePartsType;
     private String instrumentCode;
     private String instrumentName;
     private String instrumentPartsNumber;
-    private int stockIoQuantity;
-    private int receiveNumber;
-    private String transactionCode;
-    private String subTransactionCode;
-    private Integer transactionDate;
+    private Integer stockIoQuantity;
+    private Integer receiveNumber;
+    private Date transactionDate;
     private Integer transactionTime;
 }

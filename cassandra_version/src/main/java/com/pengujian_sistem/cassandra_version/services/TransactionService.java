@@ -53,7 +53,7 @@ public class TransactionService {
             boundStatements[i] = boundStatement;
         }
 
-        BatchStatement batchStatement = BatchStatement.newInstance(BatchType.UNLOGGED, boundStatements);
+        BatchStatement batchStatement = BatchStatement.newInstance(BatchType.LOGGED, boundStatements);
         cqlSession.execute(batchStatement);
     }
 
