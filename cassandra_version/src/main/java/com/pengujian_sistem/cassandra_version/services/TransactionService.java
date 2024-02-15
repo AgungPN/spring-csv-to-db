@@ -26,7 +26,7 @@ public class TransactionService {
         for (Row row : resultSet) {
             TransactionDTO transactionDTO = TransactionDTO.builder()
                     .id(row.getUuid("id"))
-                    .completed(row.getString("completed"))
+                    .completed(row.getString("complete"))
                     .cmpnycd(row.getString("cmpnycd"))
                     .stockHandlingCustomerNumber(row.getString("stock_handling_customer_number"))
                     .stockPoint(row.getString("stock_point"))

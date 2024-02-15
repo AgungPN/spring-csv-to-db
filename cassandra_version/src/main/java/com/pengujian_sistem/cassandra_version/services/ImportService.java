@@ -37,7 +37,7 @@ public class ImportService {
      * Store all data from pending CSV to database
      */
     public void pendingCsvToDB() throws IOException {
-        String pathPending = "/home/linux/Documents/programing/java/spring/spring-csv-to-db/db2_version/assets/pending/";
+        String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
@@ -52,7 +52,7 @@ public class ImportService {
         }
 
         transactionService.insertWithChunkList(transactionDTOs, 100);
-        inventoryService.insertWithChunkList(inventoryDTOS, 50);
+        inventoryService.insertWithChunkList(inventoryDTOS, 30);
     }
 
     /**

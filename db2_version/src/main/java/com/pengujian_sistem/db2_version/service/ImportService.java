@@ -2,11 +2,9 @@ package com.pengujian_sistem.db2_version.service;
 
 import com.pengujian_sistem.db2_version.dto.InventoryDTO;
 import com.pengujian_sistem.db2_version.dto.TransactionDTO;
-import com.pengujian_sistem.db2_version.helper.Helpers;
 import com.pengujian_sistem.db2_version.mapper.InventoryMapper;
 import com.pengujian_sistem.db2_version.mapper.TransactionMapper;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +15,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -39,7 +36,7 @@ public class ImportService {
      * Store data from CSV to database
      */
     public void pendingCsvToDb() throws IOException, ParseException {
-        String pathPending = "/home/linux/Documents/programing/java/spring/spring-csv-to-db/db2_version/assets/pending/";
+        String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();

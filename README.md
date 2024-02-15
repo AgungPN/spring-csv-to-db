@@ -216,5 +216,5 @@ CREATE TABLE lens_frame_inventory
 
 ## Authors
 
-- [@agungpn33@gmail.com](https://www.github.com/octokatherine](https://www.linkedin.com/in/agung-prasetyo-nugroho-0a35a6236/)https://www.linkedin.com/in/agung-prasetyo-nugroho-0a35a6236)
+- [agungpn33@gmail.com](https://www.github.com/octokatherine](https://www.linkedin.com/in/agung-prasetyo-nugroho-0a35a6236/)https://www.linkedin.com/in/agung-prasetyo-nugroho-0a35a6236)
 
