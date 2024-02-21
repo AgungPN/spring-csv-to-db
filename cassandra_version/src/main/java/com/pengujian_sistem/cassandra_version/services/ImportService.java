@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -38,25 +39,49 @@ public class ImportService {
      */
     public void pendingCsvToDB() throws IOException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
-        Long startTime = System.currentTimeMillis();
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
         assert listOfFiles != null;
 
-        List<InventoryDTO> inventoryDTOS = new ArrayList<>();
-        List<TransactionDTO> transactionDTOs = new ArrayList<>();
+        Stream.of(listOfFiles)
+                .parallel() // Process files in parallel
+                .forEach(file -> {
+                    Long startTime = System.currentTimeMillis();
 
-        for (File file : listOfFiles) {
-            List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
-            contentCsvToRows(inventoryDTOS, transactionDTOs, contents);
-        }
+                    List<InventoryDTO> inventoryDTOS = new ArrayList<>();
+                    List<TransactionDTO> transactionDTOs = new ArrayList<>();
 
-        transactionService.insertWithChunkList(transactionDTOs, 100);
-        inventoryService.insertWithChunkList(inventoryDTOS, 30);
+                    try {
+                        List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
+                        contentCsvToRows(inventoryDTOS, transactionDTOs, contents);
 
-        Long endTime = System.currentTimeMillis();
-        System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
+                        transactionService.insertWithChunkList(transactionDTOs, 100);
+                        inventoryService.insertWithChunkList(inventoryDTOS, 30);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    Long endTime = System.currentTimeMillis();
+                    System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
+                });
+        //
+//        for (File file : listOfFiles) {
+//            List<InventoryDTO> inventoryDTOS = new ArrayList<>();
+//            List<TransactionDTO> transactionDTOs = new ArrayList<>();
+//
+//            List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
+//            contentCsvToRows(inventoryDTOS, transactionDTOs, contents);
+////            transactionService.insertWithChunkList(transactionDTOs, 100);
+////            inventoryService.insertWithChunkList(inventoryDTOS, 30);
+//
+//            transactionService.insertTransactions(transactionDTOs);
+//            inventoryService.insertMany(inventoryDTOS);
+//
+//            Long endTime = System.currentTimeMillis();
+//            System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
+//        }
+
     }
 
     /**

@@ -1,8 +1,6 @@
 package com.pengujian_sistem.cassandra_version.controllers;
 
-import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
 import com.pengujian_sistem.cassandra_version.dto.InventoryResponse;
-import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
 import com.pengujian_sistem.cassandra_version.dto.TransactionResponse;
 import com.pengujian_sistem.cassandra_version.services.ImportService;
 import lombok.AllArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 

@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -43,23 +44,31 @@ public class ImportService {
      */
     public void pendingCsvToDb() throws IOException, ParseException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
-        Long startTime = System.currentTimeMillis();
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
 
-        List<Object[]> rowTransactions = new ArrayList<>();
-        List<Object[]> rowInventories = new ArrayList<>();
+        if (listOfFiles != null) {
+            Stream.of(listOfFiles)
+                    .parallel() // Process files in parallel
+                    .forEach(file -> {
+                        Long startTime = System.currentTimeMillis();
 
-        for (File file : listOfFiles) {
-            List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
-            csvToRows(rowTransactions, rowInventories, contents);
+                        List<Object[]> rowTransactions = new ArrayList<>();
+                        List<Object[]> rowInventories = new ArrayList<>();
+
+                        try {
+                            List<String> contents = Files.readAllLines(Paths.get(file.getAbsolutePath()));
+                            csvToRows(rowTransactions, rowInventories, contents);
+
+                            insertToDatabase(rowTransactions, rowInventories);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
         }
 
-        insertToDatabase(rowTransactions, rowInventories);
 
-        Long endTime = System.currentTimeMillis();
-        System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
     }
 
     /**
@@ -99,7 +108,6 @@ public class ImportService {
     @Transactional(readOnly = true)
     public void insertToDatabase(List<Object[]> batchTransactionArgs, List<Object[]> batchInventoryArgs) {
         int[] updateTransactionCounts = jdbcTemplate.batchUpdate(TransactionService.INSERT_QUERY, batchTransactionArgs);
-        System.out.println("updateTransactionCounts: " + updateTransactionCounts.length);
 
         // Handle errors if necessary
         for (int count : updateTransactionCounts) {
