@@ -77,6 +77,7 @@ public class ImportService {
      */
     public void insertToDatabase(List<Object[]> batchTransactionArgs, List<Object[]> batchInventoryArgs) {
         int[] updateTransactionCounts = jdbcTemplate.batchUpdate(TransactionService.INSERT_QUERY, batchTransactionArgs);
+        System.out.println("updateTransactionCounts: " + updateTransactionCounts.length);
 
         // Handle errors if necessary
         for (int count : updateTransactionCounts) {
@@ -107,7 +108,7 @@ public class ImportService {
      */
     public List<InventoryDTO> getListInventories() {
         return jdbcTemplate.query(
-                "SELECT * FROM LENS_FRAME_INVENTORY",
+                "SELECT ID, CMPNYCD as COMPANY_CODE, STOCK_POINT FROM LENS_FRAME_INVENTORY",
                 new InventoryMapper()
         );
     }
@@ -117,7 +118,7 @@ public class ImportService {
      */
     public List<TransactionDTO> getListTransactions() {
         return jdbcTemplate.query(
-                "SELECT * FROM TRANSACTION",
+                "SELECT ID,CMPNYCD, STOCK_POINT FROM TRANSACTION",
                 new TransactionMapper()
         );
     }
