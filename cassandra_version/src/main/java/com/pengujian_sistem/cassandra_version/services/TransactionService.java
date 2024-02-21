@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.*;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
+import com.pengujian_sistem.cassandra_version.dto.TransactionResponse;
 import com.pengujian_sistem.cassandra_version.helpers.Helpers;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,30 +21,16 @@ public class TransactionService {
     /**
      * Get all transactions from the database.
      */
-    public List<TransactionDTO> getList() {
-        List<TransactionDTO> transactionDTOS = new ArrayList<>();
-        ResultSet resultSet = cqlSession.execute("SELECT * FROM transactions");
+    public List<TransactionResponse> getList() {
+        List<TransactionResponse> transactionDTOS = new ArrayList<>();
+        ResultSet resultSet = cqlSession.execute("select id, cmpnycd as company_code, stock_point, transaction_code, transaction_date from transactions;");
         for (Row row : resultSet) {
-            TransactionDTO transactionDTO = TransactionDTO.builder()
+            TransactionResponse transactionDTO = TransactionResponse.builder()
                     .id(row.getUuid("id"))
-                    .completed(row.getString("complete"))
-                    .cmpnycd(row.getString("cmpnycd"))
-                    .stockHandlingCustomerNumber(row.getString("stock_handling_customer_number"))
+                    .companyCode(row.getString("company_code"))
                     .stockPoint(row.getString("stock_point"))
-                    .slipNumber(row.getString("slip_number"))
                     .transactionCode(row.getString("transaction_code"))
-                    .subTransactionCode(row.getString("sub_transaction_code"))
                     .transactionDate(row.getLocalDate("transaction_date"))
-                    .transactionTime(row.getInt("transaction_time"))
-                    .purchaseOrderNumber(row.getString("purchase_order_number"))
-                    .shipmentNumber(row.getString("shipment_number"))
-                    .supplierCompanyCode(row.getString("supplier_company_code"))
-                    .supplierNumber(row.getString("supplier_number"))
-                    .totDetLine(row.getString("totdetline"))
-                    .inTransitStockPoint(row.getString("intransit_stock_point"))
-                    .receiveNumber(row.getString("receive_number"))
-                    .rxArrangementNumber(row.getString("rx_arrangement_number"))
-                    .originalStockPoint(row.getString("original_stock_point"))
                     .build();
             transactionDTOS.add(transactionDTO);
         }
@@ -131,6 +118,8 @@ public class TransactionService {
      * Convert CSV content to TransactionDTO
      */
     public TransactionDTO buildDTO(String content) {
+        Long startTime = System.currentTimeMillis();
+
         StringTokenizer tkn = new StringTokenizer(content, ",");
         return TransactionDTO.builder()
                 .id(Uuids.random())

@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.*;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
+import com.pengujian_sistem.cassandra_version.dto.InventoryResponse;
 import com.pengujian_sistem.cassandra_version.helpers.Helpers;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,58 +22,15 @@ public class InventoryService {
     /**
      * Getting list of inventory
      */
-    public List<InventoryDTO> getList() {
-        List<InventoryDTO> inventoryDTOS = new ArrayList<>();
-        ResultSet resultSet = cqlSession.execute("SELECT * FROM lens_frame_inventory");
+    public List<InventoryResponse> getList() {
+        List<InventoryResponse> inventoryDTOS = new ArrayList<>();
+        ResultSet resultSet = cqlSession.execute("select id, cmpnycd as company_code, slip_number, transaction_date from lens_frame_inventory;");
         for (Row row : resultSet) {
-            InventoryDTO inventoryDTO = InventoryDTO.builder()
+            InventoryResponse inventoryDTO = InventoryResponse.builder()
                     .id(row.getUuid("id"))
-                    .cmpnycd(row.getString("cmpnycd"))
-                    .stockHandlingCustomerNumber(row.getString("stock_handling_customer_number"))
-                    .stockPoint(row.getString("stock_point"))
+                    .companyCode(row.getString("company_code"))
                     .slipNumber(row.getString("slip_number"))
-                    .lineNumber(row.getString("line_number"))
-                    .itemType(row.getString("item_type"))
-                    .fLensRlType(row.getString("f_lens_rl_type"))
-                    .fLensLensCode(row.getString("f_lens_lens_code"))
-                    .fLensColorCoatCode(row.getString("f_lens_color_coat_code"))
-                    .fLensName(row.getString("f_lens_name"))
-                    .fLensColor(row.getString("f_lens_color"))
-                    .fLensCoat(row.getString("f_lens_coat"))
-                    .fLensCylinderType(row.getString("f_lens_cylinder_type"))
-                    .fLensSphere(row.getString("f_lens_sphere"))
-                    .fLensCylinder(row.getString("f_lens_cylinder"))
-                    .fLensAxis(row.getString("f_lens_axis"))
-                    .fLensAddition(row.getString("f_lens_addition"))
-                    .fLensDiameter(row.getString("f_lens_diameter"))
-                    .fLensUniversalProductName(row.getString("f_lens_universal_product_name"))
-                    .sLensRlType(row.getString("s_lens_rl_type"))
-                    .sLensCode(row.getString("s_lens_code"))
-                    .sLensColorCoatCode(row.getString("s_lens_color_coat_code"))
-                    .sLensName(row.getString("s_lens_name"))
-                    .sLensColor(row.getString("s_lens_color"))
-                    .sLensMaker(row.getString("s_lens_maker"))
-                    .sLensNominalBaseCurve(row.getString("s_lens_nominal_base_curve"))
-                    .sLensDiameter(row.getString("s_lens_diameter"))
-                    .sLensThicknessType(row.getString("s_lens_thickness_type"))
-                    .sLensAddition(row.getString("s_lens_addition"))
-                    .sLensUniversalProductName(row.getString("s_lens_universal_product_name"))
-                    .frameCode(row.getString("frame_code"))
-                    .frameMaker(row.getString("frame_maker"))
-                    .frameName(row.getString("frame_name"))
-                    .frameEyeSize(row.getString("frame_eye_size"))
-                    .frameDbl(row.getString("frame_dbl"))
-                    .frameColor(row.getString("frame_color"))
-                    .framePartsType(row.getString("frame_parts_type"))
-                    .instrumentCode(row.getString("instrument_code"))
-                    .instrumentName(row.getString("instrument_name"))
-                    .instrumentPartsNumber(row.getString("instrument_parts_number"))
-                    .stockIoQuantity(row.getString("stock_io_quantity"))
-                    .receiveNumber(row.getInt("receive_number"))
-                    .transactionCode(row.getInt("transaction_code"))
-                    .subTransactionCode(row.getString("sub_transaction_code"))
                     .transactionDate(row.getLocalDate("transaction_date"))
-                    .transactionTime(row.getInt("transaction_time"))
                     .build();
             inventoryDTOS.add(inventoryDTO);
         }

@@ -38,6 +38,7 @@ public class ImportService {
      */
     public void pendingCsvToDB() throws IOException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
+        Long startTime = System.currentTimeMillis();
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
@@ -53,6 +54,9 @@ public class ImportService {
 
         transactionService.insertWithChunkList(transactionDTOs, 100);
         inventoryService.insertWithChunkList(inventoryDTOS, 30);
+
+        Long endTime = System.currentTimeMillis();
+        System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
     }
 
     /**

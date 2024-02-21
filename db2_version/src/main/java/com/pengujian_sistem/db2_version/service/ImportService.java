@@ -1,12 +1,16 @@
 package com.pengujian_sistem.db2_version.service;
 
 import com.pengujian_sistem.db2_version.dto.InventoryDTO;
+import com.pengujian_sistem.db2_version.dto.InventoryResponse;
 import com.pengujian_sistem.db2_version.dto.TransactionDTO;
+import com.pengujian_sistem.db2_version.dto.TransactionResponse;
 import com.pengujian_sistem.db2_version.mapper.InventoryMapper;
 import com.pengujian_sistem.db2_version.mapper.TransactionMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +28,8 @@ public class ImportService {
     private TransactionService transactionService;
 
     public void storeFileToDB(List<String> contents) throws ParseException {
+        Long startTime = System.currentTimeMillis();
+
         List<Object[]> rowTransactions = new ArrayList<>();
         List<Object[]> rowInventories = new ArrayList<>();
 
@@ -37,6 +43,7 @@ public class ImportService {
      */
     public void pendingCsvToDb() throws IOException, ParseException {
         String pathPending = "C:\\Users\\ThinkPad T480s\\Downloads\\tr_pengujian_sistem\\db2_version\\assets\\pending\\";
+        Long startTime = System.currentTimeMillis();
 
         File folder = new File(pathPending);
         File[] listOfFiles = folder.listFiles();
@@ -50,6 +57,9 @@ public class ImportService {
         }
 
         insertToDatabase(rowTransactions, rowInventories);
+
+        Long endTime = System.currentTimeMillis();
+        System.out.println("END TIME DB2: " + (endTime - startTime) + " milliseconds");
     }
 
     /**
@@ -59,22 +69,34 @@ public class ImportService {
             List<Object[]> rowTransactions,
             List<Object[]> rowInventories,
             List<String> contents) throws ParseException {
+        Long startTime = System.currentTimeMillis();
 
         String contentFields = contents.get(0);
         if (isDataFileTransaction(contentFields)) {
             for (int i = 1; i < contents.size(); i++) {
-                rowTransactions.add(transactionService.addToRows(contents.get(i)));
+                Object[] raw = transactionService.addToRows(contents.get(i));
+                if (raw != null) {
+                    rowTransactions.add(raw);
+                }
+                // TODO: in else move data to failed folder
             }
         } else {
             for (int i = 1; i < contents.size(); i++) {
-                rowInventories.add(inventoryService.addToRows(contents.get(i)));
+                Object[] raw = inventoryService.addToRows(contents.get(i));
+                if (raw != null) {
+                    rowInventories.add(raw);
+                }
+                // TODO: in else move data to failed folder
             }
         }
+        Long endTime = System.currentTimeMillis();
+        System.out.println("Time convert file to DTO: " + (endTime - startTime) + " milliseconds");
     }
 
     /**
      * Insert data object to database
      */
+    @Transactional(readOnly = true)
     public void insertToDatabase(List<Object[]> batchTransactionArgs, List<Object[]> batchInventoryArgs) {
         int[] updateTransactionCounts = jdbcTemplate.batchUpdate(TransactionService.INSERT_QUERY, batchTransactionArgs);
         System.out.println("updateTransactionCounts: " + updateTransactionCounts.length);
@@ -106,9 +128,9 @@ public class ImportService {
     /**
      * Get list data of inventories
      */
-    public List<InventoryDTO> getListInventories() {
+    public List<InventoryResponse> getListInventories() {
         return jdbcTemplate.query(
-                "SELECT ID, CMPNYCD as COMPANY_CODE, STOCK_POINT FROM LENS_FRAME_INVENTORY",
+                "SELECT ID, CMPNYCD as COMPANY_CODE, SLIP_NUMBER, TRANSACTION_DATE FROM LENS_FRAME_INVENTORY;",
                 new InventoryMapper()
         );
     }
@@ -116,9 +138,9 @@ public class ImportService {
     /**
      * get list data of transactions
      */
-    public List<TransactionDTO> getListTransactions() {
+    public List<TransactionResponse> getListTransactions() {
         return jdbcTemplate.query(
-                "SELECT ID,CMPNYCD, STOCK_POINT FROM TRANSACTION",
+                "SELECT ID, CMPNYCD as COMPANY_CODE, STOCK_POINT, TRANSACTION_CODE, TRANSACTION_DATE FROM TRANSACTION;",
                 new TransactionMapper()
         );
     }

@@ -1,7 +1,9 @@
 package com.pengujian_sistem.db2_version.controller;
 
 import com.pengujian_sistem.db2_version.dto.InventoryDTO;
+import com.pengujian_sistem.db2_version.dto.InventoryResponse;
 import com.pengujian_sistem.db2_version.dto.TransactionDTO;
+import com.pengujian_sistem.db2_version.dto.TransactionResponse;
 import com.pengujian_sistem.db2_version.service.ImportService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,12 @@ public class DB2Controller {
     private ImportService importService;
 
     @GetMapping("/transactions")
-    public List<TransactionDTO> getTransactions() {
+    public List<TransactionResponse> getTransactions() {
         return importService.getListTransactions();
     }
 
     @GetMapping("/inventories")
-    public List<InventoryDTO> getInventories() {
+    public List<InventoryResponse> getInventories() {
         return importService.getListInventories();
     }
 

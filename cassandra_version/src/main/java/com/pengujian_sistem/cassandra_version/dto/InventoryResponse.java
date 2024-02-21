@@ -1,8 +1,11 @@
-package com.pengujian_sistem.db2_version.dto;
+package com.pengujian_sistem.cassandra_version.dto;
 
 import lombok.Builder;
 import lombok.Data;
+
 import java.sql.Date;
+import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * @author Agung Prasetyo Nugroho <agungpn33@gmail.com>
@@ -10,8 +13,8 @@ import java.sql.Date;
 @Data
 @Builder
 public class InventoryResponse {
-    private int id;
+    private UUID id;
     private String companyCode;
     private String slipNumber;
-    private Date transactionDate;
+    private LocalDate transactionDate;
 }

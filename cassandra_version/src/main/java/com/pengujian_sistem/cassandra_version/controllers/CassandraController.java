@@ -1,7 +1,9 @@
 package com.pengujian_sistem.cassandra_version.controllers;
 
 import com.pengujian_sistem.cassandra_version.dto.InventoryDTO;
+import com.pengujian_sistem.cassandra_version.dto.InventoryResponse;
 import com.pengujian_sistem.cassandra_version.dto.TransactionDTO;
+import com.pengujian_sistem.cassandra_version.dto.TransactionResponse;
 import com.pengujian_sistem.cassandra_version.services.ImportService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,12 @@ public class CassandraController {
     private ImportService importService;
 
     @GetMapping("/transactions")
-    public List<TransactionDTO> getTransactions() {
+    public List<TransactionResponse> getTransactions() {
         return importService.getTransactionService().getList();
     }
 
     @GetMapping("/inventories")
-    public List<InventoryDTO> getInventories() {
+    public List<InventoryResponse> getInventories() {
         return importService.getInventoryService().getList();
     }
 
